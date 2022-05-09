@@ -4,11 +4,17 @@
  */
 package trabalho1_bd;
 
+import java.sql.*;
+import java.util.TimeZone;
+
 /**
  *
  * @author vitor
  */
 public class ChooseConnectionForm extends javax.swing.JFrame {
+    private Connection con;
+    private Statement stmt;
+    private ResultSet rs;
 
     /**
      * Creates new form ChooseConnectionForm
@@ -37,7 +43,7 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         connectionUserTextField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        connectButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
 
@@ -63,7 +69,12 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
 
         jLabel5.setText("Senha:");
 
-        jButton1.setText("jButton1");
+        connectButton.setText("Conectar");
+        connectButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                connectButtonActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("jButton1");
 
@@ -81,58 +92,60 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(chooseSavedConnectionLabel)
                             .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
                                 .addComponent(jLabel1)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(connectionNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel3))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel5))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(connectionUrlTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(connectionUserTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(connectionPasswordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(12, 12, 12)
+                            .addComponent(connectButton, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(57, 57, 57)
+                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel4)
+                                .addComponent(jLabel2)
+                                .addComponent(jLabel5))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(connectionUrlTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(connectionUserTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(connectionPasswordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(14, 14, 14)
+                .addComponent(chooseSavedConnectionLabel)
+                .addGap(20, 20, 20)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(chooseSavedConnectionLabel)
-                        .addGap(4, 4, 4)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
                             .addComponent(connectionNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1)
                             .addComponent(jLabel3))
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel2))
-                    .addComponent(connectionUrlTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(connectionUrlTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(connectionUserTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(connectionPasswordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(connectionPasswordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                    .addComponent(connectButton)
                     .addComponent(jButton2)
                     .addComponent(jButton3))
                 .addGap(35, 35, 35))
@@ -144,6 +157,33 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
     private void connectionPasswordTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionPasswordTextFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_connectionPasswordTextFieldActionPerformed
+
+    private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
+        String url = connectionUrlTextField.getText()+"?useTimezone=true&serverTimezone=America/Sao_Paulo";
+        String user = connectionUserTextField.getText();
+        String password = connectionPasswordTextField.getText();
+        try {            
+            //TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+             
+            con = DriverManager.getConnection(url, user, password);
+            
+        } catch (SQLException sql1) {
+            System.out.println("Erro BD: "+sql1);
+            //System.exit(0);
+        }
+
+        initComponents();
+
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery("select * from student");
+            if (rs.next()) {
+               System.out.println(rs.getString("name"));
+            }
+        } catch (SQLException sql1) {
+            System.out.println("Erro BD: " + sql1);
+        }
+    }//GEN-LAST:event_connectButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -182,11 +222,11 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel chooseSavedConnectionLabel;
+    private javax.swing.JButton connectButton;
     private javax.swing.JTextField connectionNameTextField;
     private javax.swing.JTextField connectionPasswordTextField;
     private javax.swing.JTextField connectionUrlTextField;
     private javax.swing.JTextField connectionUserTextField;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JComboBox<String> jComboBox1;

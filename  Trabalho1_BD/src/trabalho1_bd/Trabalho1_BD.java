@@ -13,7 +13,7 @@ public class Trabalho1_BD {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new ChooseConnectionForm().setVisible(true);
