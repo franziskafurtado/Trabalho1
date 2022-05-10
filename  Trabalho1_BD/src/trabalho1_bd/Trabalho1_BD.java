@@ -3,22 +3,24 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
 package trabalho1_bd;
-
+import java.sql.*;
+import trabalho1_bd.ChooseConnectionForm;
 /**
  *
  * @author vitor
  */
 public class Trabalho1_BD {
-
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) throws Exception{
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ChooseConnectionForm().setVisible(true);
-            }
-        });
-    }
-    
+        new Context();
+    }    
 }
+
+class Context{
+    private ChooseConnectionForm chooseConnectionForm = new ChooseConnectionForm();
+
+    public Context(){
+        chooseConnectionForm.setVisible(true);
+    }
+}
+
+

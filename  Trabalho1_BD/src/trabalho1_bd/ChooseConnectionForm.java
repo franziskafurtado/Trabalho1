@@ -12,10 +12,7 @@ import java.util.TimeZone;
  * @author vitor
  */
 public class ChooseConnectionForm extends javax.swing.JFrame {
-    private Connection con;
-    private Statement stmt;
-    private ResultSet rs;
-
+    public ConnectionGUIForm gui;
     /**
      * Creates new form ChooseConnectionForm
      */
@@ -159,29 +156,17 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
     }//GEN-LAST:event_connectionPasswordTextFieldActionPerformed
 
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
-        String url = connectionUrlTextField.getText()+"?useTimezone=true&serverTimezone=America/Sao_Paulo";
-        String user = connectionUserTextField.getText();
-        String password = connectionPasswordTextField.getText();
-        try {            
-            //TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-             
-            con = DriverManager.getConnection(url, user, password);
-            
-        } catch (SQLException sql1) {
+        try{
+            String url = connectionUrlTextField.getText()+"?useTimezone=true&serverTimezone=America/Sao_Paulo";
+            String user = connectionUserTextField.getText();
+            String password = connectionPasswordTextField.getText();
+
+            this.setVisible(false);
+            this.gui = new ConnectionGUIForm(DriverManager.getConnection(url, user, password));
+            this.gui.setVisible(true);
+        }catch (SQLException sql1) {
             System.out.println("Erro BD: "+sql1);
             //System.exit(0);
-        }
-
-        initComponents();
-
-        try {
-            stmt = con.createStatement();
-            rs = stmt.executeQuery("select * from student");
-            if (rs.next()) {
-               System.out.println(rs.getString("name"));
-            }
-        } catch (SQLException sql1) {
-            System.out.println("Erro BD: " + sql1);
         }
     }//GEN-LAST:event_connectButtonActionPerformed
 
