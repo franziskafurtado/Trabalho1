@@ -11,6 +11,8 @@ import trabalho1_bd.ChooseConnectionForm;
  */
 public class Trabalho1_BD {
     public static void main(String[] args) throws Exception{
+        
+        System.out.println(System.getProperty("user.dir"));
         new Context();
     }    
 }

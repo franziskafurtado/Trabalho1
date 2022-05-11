@@ -166,7 +166,7 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
             this.gui.setVisible(true);
         }catch (SQLException sql1) {
             System.out.println("Erro BD: "+sql1);
-            //System.exit(0);
+            this.setVisible(true);
         }
     }//GEN-LAST:event_connectButtonActionPerformed
 
