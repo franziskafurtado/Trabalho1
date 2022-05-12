@@ -4,15 +4,19 @@
  */
 package trabalho1_bd;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 /**
  *
  * @author vitor
  */
 public class ConnectionGUIForm extends javax.swing.JFrame  {
-    
+    private static String _csvExportDir = System.getProperty("user.dir")+"\\exportedCSV.csv";
     public Connection con;
     
     public ConnectionGUIForm() {
@@ -182,6 +186,9 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
 
     private void executeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_executeButtonActionPerformed
         try {
+            exportCsvButton.setEnabled(false);
+            exportJsonButton.setEnabled(false);
+            
             Statement stmt = this.con.createStatement();
             ResultSet rs = stmt.executeQuery(sqlCommandTextArea.getText());
             ArrayList<String> resultColumns = new ArrayList<>();
@@ -212,6 +219,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
                     }
                     dtm.addRow(resultLine.toArray());
                }
+               exportCsvButton.setEnabled(true);
             }
         } catch (SQLException sql1) {
             System.out.println("Erro BD: " + sql1);
@@ -219,7 +227,28 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
     }//GEN-LAST:event_executeButtonActionPerformed
 
     private void exportCsvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCsvButtonActionPerformed
-        // TODO add your handling code here:
+        try {
+            System.out.println(_csvExportDir);
+            TableModel model = sqlResultTable.getModel();
+            FileWriter csv = new FileWriter(new File(_csvExportDir));
+
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                csv.write(model.getColumnName(i) + ",");
+            }
+
+            csv.write("\n");
+
+            for (int i = 0; i < model.getRowCount(); i++) {
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    csv.write(model.getValueAt(i, j).toString() + ",");
+                }
+                csv.write("\n");
+            }
+
+            csv.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_exportCsvButtonActionPerformed
 
     private void exportJsonButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportJsonButtonActionPerformed
