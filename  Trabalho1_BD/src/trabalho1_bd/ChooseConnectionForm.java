@@ -5,19 +5,55 @@
 package trabalho1_bd;
 
 import java.sql.*;
-import java.util.TimeZone;
+
+import java.io.*;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import java.util.ArrayList;
+
+
 
 /**
  *
  * @author vitor
  */
 public class ChooseConnectionForm extends javax.swing.JFrame {
+    private static String _csvDir = System.getProperty("user.dir")+"\\saved.csv";
     public ConnectionGUIForm gui;
-    /**
-     * Creates new form ChooseConnectionForm
-     */
+    public ArrayList<ConnectionInfo> savedConnections = new ArrayList<ConnectionInfo>();
+    
     public ChooseConnectionForm() {
+        ArrayList<String> comboOptions = new ArrayList<String>();
+        comboOptions.add("");
+
+        CSVReader reader = null;
+        try{
+            File tempFile = new File(_csvDir);
+            if(tempFile.exists()){
+                FileReader fileReader = new FileReader(_csvDir);
+                reader = new CSVReader(fileReader);
+
+                String[] nextRecord;
+
+                while ((nextRecord = reader.readNext()) != null) {
+                   ConnectionInfo savedConnection = new ConnectionInfo();
+                   
+                   savedConnection.connectionName = nextRecord[0];
+                   savedConnection.url = nextRecord[1];
+                   savedConnection.userName = nextRecord[2];
+                   savedConnection.password = nextRecord[3];
+
+                   savedConnections.add(savedConnection);                   
+                   comboOptions.add(nextRecord[0]);
+                }
+            }
+
+        }catch(Exception ex){
+            System.out.println("Erro Leitura de Arquivo: "+ex);
+        }
         initComponents();
+        
+        savedAccountsCombo.setModel(new javax.swing.DefaultComboBoxModel(comboOptions.toArray()));
     }
 
     /**
@@ -30,37 +66,41 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
     private void initComponents() {
 
         chooseSavedConnectionLabel = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        savedAccountsCombo = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
         connectionNameTextField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         connectionUrlTextField = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        connectionPasswordTextField = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         connectionUserTextField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         connectButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        connectionPasswordField = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         chooseSavedConnectionLabel.setText("Escolha a conexão:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        savedAccountsCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        savedAccountsCombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savedAccountsComboActionPerformed(evt);
+            }
+        });
+        savedAccountsCombo.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                savedAccountsComboPropertyChange(evt);
+            }
+        });
 
         jLabel1.setText("Nome:");
 
         jLabel2.setText("JDBC url:");
 
         jLabel3.setText("Porta:");
-
-        connectionPasswordTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                connectionPasswordTextFieldActionPerformed(evt);
-            }
-        });
 
         jLabel4.setText("Usuário:");
 
@@ -74,6 +114,11 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
         });
 
         jButton2.setText("jButton1");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("jButton1");
 
@@ -84,7 +129,7 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(savedAccountsCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(chooseSavedConnectionLabel)
@@ -99,7 +144,7 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
                         .addGroup(layout.createSequentialGroup()
                             .addGap(12, 12, 12)
                             .addComponent(connectButton, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
                             .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(57, 57, 57)
                             .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -109,10 +154,10 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
                                 .addComponent(jLabel2)
                                 .addComponent(jLabel5))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(connectionUrlTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(connectionUserTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(connectionPasswordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(connectionUrlTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
+                                .addComponent(connectionUserTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
+                                .addComponent(connectionPasswordField)))))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -121,7 +166,7 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addComponent(chooseSavedConnectionLabel)
                 .addGap(20, 20, 20)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(savedAccountsCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel2)
@@ -138,8 +183,8 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(connectionPasswordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
+                    .addComponent(jLabel5)
+                    .addComponent(connectionPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(connectButton)
@@ -151,25 +196,91 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void connectionPasswordTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionPasswordTextFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_connectionPasswordTextFieldActionPerformed
-
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
         try{
-            String url = connectionUrlTextField.getText()+"?useTimezone=true&serverTimezone=America/Sao_Paulo";
-            String user = connectionUserTextField.getText();
-            String password = connectionPasswordTextField.getText();
 
+            ConnectionInfo newConnection = new ConnectionInfo();
+        
+            newConnection.connectionName = connectionNameTextField.getText();
+            newConnection.url = connectionUrlTextField.getText();
+            newConnection.userName = connectionUserTextField.getText();
+            newConnection.password = String.valueOf(connectionPasswordField.getPassword());
+            
             this.setVisible(false);
-            this.gui = new ConnectionGUIForm(DriverManager.getConnection(url, user, password));
+            this.gui = new ConnectionGUIForm(DriverManager.getConnection(newConnection.url+"?useTimezone=true&serverTimezone=America/Sao_Paulo", newConnection.userName, newConnection.password));
             this.gui.setVisible(true);
-        }catch (SQLException sql1) {
+            
+            boolean isNew = true;
+            
+            for(var i=0; i< savedConnections.size(); i++){
+               var savedConnection = savedConnections.get(i);
+               if(savedConnection.connectionName.equals(newConnection.connectionName)){
+                        isNew = false;
+               }
+            }
+
+            
+            if(isNew){
+                savedConnections.add(newConnection);
+            }
+            
+            File file = new File(_csvDir);
+            FileWriter outputFile = new FileWriter(file);
+            CSVWriter writer = new CSVWriter(outputFile);
+            
+            for(var i=0; i< savedConnections.size(); i++){
+                var savedConnection = savedConnections.get(i);
+               String[] line = new String[]{ savedConnection.connectionName,savedConnection.url,savedConnection.userName, savedConnection.password};
+               writer.writeNext(line);
+            }       
+            
+            writer.close();
+
+        }catch (Exception sql1) {
             System.out.println("Erro BD: "+sql1);
             this.setVisible(true);
         }
     }//GEN-LAST:event_connectButtonActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        CSVReader reader = null;
+        try{
+            reader = new CSVReader(new FileReader(_csvDir));
+            
+            String[] nextRecord;
+            
+            while ((nextRecord = reader.readNext()) != null) {
+                for (String cell : nextRecord) {
+                    System.out.print(cell + "\t");
+                }
+                System.out.println();
+            }
+        }catch(Exception ex){
+            
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void savedAccountsComboPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_savedAccountsComboPropertyChange
+
+    }//GEN-LAST:event_savedAccountsComboPropertyChange
+
+    private void savedAccountsComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savedAccountsComboActionPerformed
+        var selectedConnection = savedAccountsCombo.getSelectedItem();
+        
+        savedConnections.forEach(
+           savedConnection ->{
+               if(savedConnection.connectionName == selectedConnection){
+                   connectionNameTextField.setText(savedConnection.connectionName);
+                   connectionUrlTextField.setText(savedConnection.url);
+                   connectionUserTextField.setText(savedConnection.userName);
+                   connectionPasswordField = new javax.swing.JPasswordField(savedConnection.password);
+               }
+           }
+        );
+        //savedConnections.
+    }//GEN-LAST:event_savedAccountsComboActionPerformed
+
+    
     /**
      * @param args the command line arguments
      */
@@ -204,21 +315,28 @@ public class ChooseConnectionForm extends javax.swing.JFrame {
             }
         });
     }
+    
+    class ConnectionInfo{
+        public String url;
+        public String userName;
+        public String password;
+        public String connectionName;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel chooseSavedConnectionLabel;
     private javax.swing.JButton connectButton;
     private javax.swing.JTextField connectionNameTextField;
-    private javax.swing.JTextField connectionPasswordTextField;
+    private javax.swing.JPasswordField connectionPasswordField;
     private javax.swing.JTextField connectionUrlTextField;
     private javax.swing.JTextField connectionUserTextField;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JComboBox<String> savedAccountsCombo;
     // End of variables declaration//GEN-END:variables
 }

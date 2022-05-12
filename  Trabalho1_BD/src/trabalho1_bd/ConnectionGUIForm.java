@@ -44,6 +44,9 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         jTree1 = new javax.swing.JTree();
         jScrollPane5 = new javax.swing.JScrollPane();
         sqlResultTable = new javax.swing.JTable();
+        exportCsvButton = new javax.swing.JButton();
+        exportJsonButton = new javax.swing.JButton();
+        returnNumberLimit = new javax.swing.JTextField();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -99,6 +102,40 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         ));
         jScrollPane5.setViewportView(sqlResultTable);
 
+        exportCsvButton.setText("Exportar CSV");
+        exportCsvButton.setEnabled(false);
+        exportCsvButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportCsvButtonActionPerformed(evt);
+            }
+        });
+
+        exportJsonButton.setText("Exportar Json");
+        exportJsonButton.setEnabled(false);
+        exportJsonButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportJsonButtonActionPerformed(evt);
+            }
+        });
+
+        returnNumberLimit.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                returnNumberLimitInputMethodTextChanged(evt);
+            }
+        });
+        returnNumberLimit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                returnNumberLimitActionPerformed(evt);
+            }
+        });
+        returnNumberLimit.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                returnNumberLimitKeyPressed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -108,7 +145,15 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(executeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(executeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(46, 46, 46)
+                        .addComponent(exportJsonButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(exportCsvButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(returnNumberLimit, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(129, 129, 129))
                     .addComponent(jScrollPane1)
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 1053, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -119,7 +164,11 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(executeButton)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(executeButton)
+                            .addComponent(exportCsvButton)
+                            .addComponent(exportJsonButton)
+                            .addComponent(returnNumberLimit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -153,7 +202,8 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
                 sqlResultTable.setModel(dtm);
                 
                 dtm.addRow(resultLine.toArray());
-
+                
+              
                while(rs.next()){
                     resultLine = new ArrayList<String>();
                     for(int i=1; i <= rsmd.getColumnCount(); i++){
@@ -167,6 +217,34 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
             System.out.println("Erro BD: " + sql1);
         }
     }//GEN-LAST:event_executeButtonActionPerformed
+
+    private void exportCsvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCsvButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_exportCsvButtonActionPerformed
+
+    private void exportJsonButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportJsonButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_exportJsonButtonActionPerformed
+
+    private void returnNumberLimitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnNumberLimitActionPerformed
+
+    }//GEN-LAST:event_returnNumberLimitActionPerformed
+
+    private void returnNumberLimitKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_returnNumberLimitKeyPressed
+
+    }//GEN-LAST:event_returnNumberLimitKeyPressed
+
+    private void returnNumberLimitInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_returnNumberLimitInputMethodTextChanged
+         try{
+            System.out.println("Change");
+            Integer.valueOf(returnNumberLimit.getText());
+        }
+        catch(Exception ex){
+            returnNumberLimit.setText("");
+
+            returnNumberLimit.setText("1000");
+        }
+    }//GEN-LAST:event_returnNumberLimitInputMethodTextChanged
 
     /**
      * @param args the command line arguments
@@ -206,6 +284,8 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton executeButton;
+    private javax.swing.JButton exportCsvButton;
+    private javax.swing.JButton exportJsonButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -214,6 +294,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTree jTree1;
+    private javax.swing.JTextField returnNumberLimit;
     private javax.swing.JTextArea sqlCommandTextArea;
     private javax.swing.JTable sqlResultTable;
     // End of variables declaration//GEN-END:variables
