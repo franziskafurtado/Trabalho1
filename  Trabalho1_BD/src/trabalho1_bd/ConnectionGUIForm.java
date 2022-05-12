@@ -9,7 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import javax.swing.JTree;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -18,6 +19,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @author vitor
  */
 public class ConnectionGUIForm extends javax.swing.JFrame  {
+
+    /**
+     *
+     */
     private static String _csvExportDir = System.getProperty("user.dir")+"\\exportedCSV.csv";
     public Connection con;
     
@@ -35,13 +40,13 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
             DefaultMutableTreeNode tables = new DefaultMutableTreeNode("Tables");
             DefaultMutableTreeNode views = new DefaultMutableTreeNode("Views");
 
-            
-            ResultSet rs = st.executeQuery("Show Tables");
+            DatabaseMetaData meta = con.getMetaData();
+            ResultSet rs = meta.getTables(con.getCatalog(), null, null, new String[]{"TABLE"});
             
             while(rs.next()){
                 System.out.println("Table ");
                 
-                String tableName = rs.getString(1);
+                String tableName = rs.getString(3);
                 System.out.println(tableName);
 
                 DefaultMutableTreeNode table = new DefaultMutableTreeNode(tableName);
@@ -54,15 +59,25 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
                 tables.add(table);
             }
             
-//            DatabaseMetaData meta = con.getMetaData();
-//            rs = st.executeQuery("Show Views");
-//            while (rs.next()) {
-//                String tableName = rs.getString("TABLE_NAME");
-//                System.out.println("tableName=" + tableName);
-//            }
+            root.add(tables);
+
+            
+            rs = meta.getTables(con.getCatalog(), null, null, new String[]{"VIEW"});
+            
+            while (rs.next()) {
+                String tableName = rs.getString("TABLE_NAME");
+                
+                DefaultMutableTreeNode view = new DefaultMutableTreeNode(tableName);
+                var columns = getColumns(tableName);
+                
+                columns.forEach(
+                        column->{view.add(column);}
+                );
+                views.add(view);
+
+             }
             
             root.add(views);
-            root.add(tables);
             DbTree.setModel(new javax.swing.tree.DefaultTreeModel(root));
         }catch(Exception ex){
             System.out.println("Erro BD: "+ex);
@@ -76,15 +91,14 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         {
             var st = this.con.createStatement();
             ResultSet rst = st.executeQuery("select * from "+tableName);
-            
             ResultSetMetaData rsMetaData = rst.getMetaData();
-            
+
             int count = rsMetaData.getColumnCount();
+            
             System.out.println(count);
             
             for(int i = 1; i<=count; i++) {
-                System.out.println(rsMetaData.getColumnName(i));
-                columns.add(new DefaultMutableTreeNode(rsMetaData.getColumnName(i)));
+                columns.add(new DefaultMutableTreeNode(rsMetaData.getColumnName(i)+"-"+getColumnType(rsMetaData.getColumnType(i))+"("+rsMetaData.getColumnDisplaySize(i)+")"));
             }
             rst.close();
             st.close();
@@ -95,8 +109,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         }
         return columns;
     }
-
-
+   
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -217,21 +230,20 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(14, 14, 14)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(executeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(46, 46, 46)
+                        .addGap(66, 66, 66)
                         .addComponent(exportJsonButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(28, 28, 28)
                         .addComponent(exportCsvButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(returnNumberLimit, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(129, 129, 129))
+                        .addGap(60, 60, 60)
+                        .addComponent(returnNumberLimit, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 1053, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -346,6 +358,82 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         }
     }//GEN-LAST:event_returnNumberLimitInputMethodTextChanged
 
+    private String getColumnType(int typeId){
+        switch(typeId){
+            case 2003:
+                return "Array";
+            case -5:
+                return "BigInt";
+            case -2:
+                return "Binary";
+            case -7:
+                return "Bit";
+            case 2004:
+                return "Blob";
+            case 16:
+                return "Boolean";
+            case 1:
+                return "Char";
+            case 2005:
+                return "Clob";
+            case 91:
+                return "Date";
+            case 70:
+                return "Datalink";
+            case 3:
+                return "Decimal";
+            case 2001:
+                return "Distinct";
+            case 8:
+                return "Double";
+            case 6:
+                return "Float";
+            case 4:
+                return "Integer";
+            case 2000:
+                return "JavaObject";
+            case -16:
+                return "VarChar";
+            case -15:
+                return "Nchar";
+            case 2011:
+                return "NClob";
+            case 12:
+                return "Varchar";
+            case -3:
+                return "VarBinary";
+            case -6:
+                return "Tiny int";
+            case 2014:
+                return "TimeStampWZone";
+            case 93:
+                return "Timestamp";
+            case 92:
+                return "Time";
+            case 2002:
+                return "Struct";
+            case 2009:
+                return "SqlXml";
+            case 5:
+                return "Smallint";
+            case -8:
+                return "Rowid";
+            case 2012:
+                return "Refcursor";
+            case 2006:
+                return "Ref";
+            case 7:
+                return "Real";
+            case -9:
+                return "Nvarchar";
+            case 2:
+                return "Numeric";
+            case 0:
+                return "Null";
+            default:
+                return "";
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -380,6 +468,10 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
                 new ConnectionGUIForm().setVisible(true);
             }
         });
+    }
+    
+    enum DataTypes{
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
