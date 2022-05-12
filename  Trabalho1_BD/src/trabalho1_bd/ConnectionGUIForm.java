@@ -9,8 +9,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import javax.swing.JTree;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
 /**
  *
  * @author vitor
@@ -23,8 +25,75 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         initComponents();
     }
     public ConnectionGUIForm(Connection con) {
-        this.con = con;
         initComponents();
+        this.con = con;
+        try
+        {
+            var st = this.con.createStatement();
+            
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode("DatabaseRoot");
+            DefaultMutableTreeNode tables = new DefaultMutableTreeNode("Tables");
+            DefaultMutableTreeNode views = new DefaultMutableTreeNode("Views");
+
+            
+            ResultSet rs = st.executeQuery("Show Tables");
+            
+            while(rs.next()){
+                System.out.println("Table ");
+                
+                String tableName = rs.getString(1);
+                System.out.println(tableName);
+
+                DefaultMutableTreeNode table = new DefaultMutableTreeNode(tableName);
+                
+                var columns = getColumns(tableName);
+                
+                columns.forEach(
+                        column->{table.add(column);}
+                );
+                tables.add(table);
+            }
+            
+//            DatabaseMetaData meta = con.getMetaData();
+//            rs = st.executeQuery("Show Views");
+//            while (rs.next()) {
+//                String tableName = rs.getString("TABLE_NAME");
+//                System.out.println("tableName=" + tableName);
+//            }
+            
+            root.add(views);
+            root.add(tables);
+            DbTree.setModel(new javax.swing.tree.DefaultTreeModel(root));
+        }catch(Exception ex){
+            System.out.println("Erro BD: "+ex);
+        }
+
+    }
+    
+    private ArrayList<DefaultMutableTreeNode> getColumns(String tableName){
+        ArrayList<DefaultMutableTreeNode> columns = new ArrayList<DefaultMutableTreeNode>();
+        try
+        {
+            var st = this.con.createStatement();
+            ResultSet rst = st.executeQuery("select * from "+tableName);
+            
+            ResultSetMetaData rsMetaData = rst.getMetaData();
+            
+            int count = rsMetaData.getColumnCount();
+            System.out.println(count);
+            
+            for(int i = 1; i<=count; i++) {
+                System.out.println(rsMetaData.getColumnName(i));
+                columns.add(new DefaultMutableTreeNode(rsMetaData.getColumnName(i)));
+            }
+            rst.close();
+            st.close();
+            return columns;
+            
+        }catch(Exception ex){
+            System.out.println("Erro BD: "+ex);
+        }
+        return columns;
     }
 
 
@@ -45,7 +114,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         jScrollPane1 = new javax.swing.JScrollPane();
         sqlCommandTextArea = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTree1 = new javax.swing.JTree();
+        DbTree = new javax.swing.JTree();
         jScrollPane5 = new javax.swing.JScrollPane();
         sqlResultTable = new javax.swing.JTable();
         exportCsvButton = new javax.swing.JButton();
@@ -91,7 +160,9 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         sqlCommandTextArea.setRows(5);
         jScrollPane1.setViewportView(sqlCommandTextArea);
 
-        jScrollPane2.setViewportView(jTree1);
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
+        DbTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        jScrollPane2.setViewportView(DbTree);
 
         sqlResultTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -312,6 +383,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTree DbTree;
     private javax.swing.JButton executeButton;
     private javax.swing.JButton exportCsvButton;
     private javax.swing.JButton exportJsonButton;
@@ -322,7 +394,6 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTree jTree1;
     private javax.swing.JTextField returnNumberLimit;
     private javax.swing.JTextArea sqlCommandTextArea;
     private javax.swing.JTable sqlResultTable;
