@@ -95,7 +95,9 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
         ArrayList<DefaultMutableTreeNode> columns = new ArrayList<DefaultMutableTreeNode>();
         try {
             var st = this.con.createStatement();
-            ResultSet rst = st.executeQuery("select * from " + tableName);
+            ResultSet rst = st.executeQuery(
+                    "select * from " + tableName
+            );
             ResultSetMetaData rsMetaData = rst.getMetaData();
 
             int count = rsMetaData.getColumnCount();
@@ -211,6 +213,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
             }
         });
 
+        returnNumberLimit.setText("1000");
         returnNumberLimit.addInputMethodListener(new java.awt.event.InputMethodListener() {
             public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
             }
@@ -278,7 +281,10 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
             exportJsonButton.setEnabled(false);
 
             Statement stmt = this.con.createStatement();
-            ResultSet rs = stmt.executeQuery(sqlCommandTextArea.getText());
+            ResultSet rs = stmt.executeQuery(
+                    sqlCommandTextArea.getText() + 
+                    " limit " + returnNumberLimit.getText());
+            
             ArrayList<String> resultColumns = new ArrayList<>();
 
             DefaultTableModel dtm = new DefaultTableModel(0, 0);
