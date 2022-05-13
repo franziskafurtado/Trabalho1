@@ -14,102 +14,107 @@ import java.util.Map;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.json.JSONObject;
+
 /**
  *
  * @author vitor
  */
-public class ConnectionGUIForm extends javax.swing.JFrame  {
+public class ConnectionGUIForm extends javax.swing.JFrame {
 
     /**
      *
      */
-    private static String _csvExportDir = System.getProperty("user.dir")+"\\exportedCSV.csv";
+    private static String _csvExportDir = System.getProperty("user.dir") + "\\exportedCSV.csv";
+    private static String _jsonExportDir = System.getProperty("user.dir") + "\\exportedJSON.json";
     public Connection con;
-    
+
     public ConnectionGUIForm() {
         initComponents();
     }
+
     public ConnectionGUIForm(Connection con) {
         initComponents();
         this.con = con;
-        try
-        {
+        try {
             var st = this.con.createStatement();
-            
+
             DefaultMutableTreeNode root = new DefaultMutableTreeNode("DatabaseRoot");
             DefaultMutableTreeNode tables = new DefaultMutableTreeNode("Tables");
             DefaultMutableTreeNode views = new DefaultMutableTreeNode("Views");
 
             DatabaseMetaData meta = con.getMetaData();
             ResultSet rs = meta.getTables(con.getCatalog(), null, null, new String[]{"TABLE"});
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 System.out.println("Table ");
-                
+
                 String tableName = rs.getString(3);
                 System.out.println(tableName);
 
                 DefaultMutableTreeNode table = new DefaultMutableTreeNode(tableName);
-                
+
                 var columns = getColumns(tableName);
-                
+
                 columns.forEach(
-                        column->{table.add(column);}
+                        column -> {
+                            table.add(column);
+                        }
                 );
                 tables.add(table);
             }
-            
+
             root.add(tables);
 
-            
             rs = meta.getTables(con.getCatalog(), null, null, new String[]{"VIEW"});
-            
+
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");
-                
+
                 DefaultMutableTreeNode view = new DefaultMutableTreeNode(tableName);
                 var columns = getColumns(tableName);
-                
+
                 columns.forEach(
-                        column->{view.add(column);}
+                        column -> {
+                            view.add(column);
+                        }
                 );
                 views.add(view);
 
-             }
-            
+            }
+
             root.add(views);
             DbTree.setModel(new javax.swing.tree.DefaultTreeModel(root));
-        }catch(Exception ex){
-            System.out.println("Erro BD: "+ex);
+        } catch (Exception ex) {
+            System.out.println("Erro BD: " + ex);
         }
 
     }
-    
-    private ArrayList<DefaultMutableTreeNode> getColumns(String tableName){
+
+    private ArrayList<DefaultMutableTreeNode> getColumns(String tableName) {
         ArrayList<DefaultMutableTreeNode> columns = new ArrayList<DefaultMutableTreeNode>();
-        try
-        {
+        try {
             var st = this.con.createStatement();
-            ResultSet rst = st.executeQuery("select * from "+tableName);
+            ResultSet rst = st.executeQuery("select * from " + tableName);
             ResultSetMetaData rsMetaData = rst.getMetaData();
 
             int count = rsMetaData.getColumnCount();
-            
+
             System.out.println(count);
-            
-            for(int i = 1; i<=count; i++) {
-                columns.add(new DefaultMutableTreeNode(rsMetaData.getColumnName(i)+"-"+getColumnType(rsMetaData.getColumnType(i))+"("+rsMetaData.getColumnDisplaySize(i)+")"));
+
+            for (int i = 1; i <= count; i++) {
+                columns.add(new DefaultMutableTreeNode(rsMetaData.getColumnName(i) + "-" + getColumnType(rsMetaData.getColumnType(i)) + "(" + rsMetaData.getColumnDisplaySize(i) + ")"));
             }
             rst.close();
             st.close();
             return columns;
-            
-        }catch(Exception ex){
-            System.out.println("Erro BD: "+ex);
+
+        } catch (Exception ex) {
+            System.out.println("Erro BD: " + ex);
         }
         return columns;
     }
-   
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -271,38 +276,38 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
         try {
             exportCsvButton.setEnabled(false);
             exportJsonButton.setEnabled(false);
-            
+
             Statement stmt = this.con.createStatement();
             ResultSet rs = stmt.executeQuery(sqlCommandTextArea.getText());
             ArrayList<String> resultColumns = new ArrayList<>();
-            
+
             DefaultTableModel dtm = new DefaultTableModel(0, 0);
-            
+
             if (rs.next()) {
-               ResultSetMetaData rsmd = rs.getMetaData();               
-               
-               ArrayList<String> resultLine = new ArrayList<String>();
-               
-               for(int i=1; i <= rsmd.getColumnCount(); i++){
-                  resultColumns.add(rsmd.getColumnName(i));
-                  resultLine.add(rs.getString(i));
-               }
-               
+                ResultSetMetaData rsmd = rs.getMetaData();
+
+                ArrayList<String> resultLine = new ArrayList<String>();
+
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    resultColumns.add(rsmd.getColumnName(i));
+                    resultLine.add(rs.getString(i));
+                }
+
                 dtm.setColumnIdentifiers(resultColumns.toArray());
                 sqlResultTable.setModel(dtm);
-                
+
                 dtm.addRow(resultLine.toArray());
-                
-              
-               while(rs.next()){
+
+                while (rs.next()) {
                     resultLine = new ArrayList<String>();
-                    for(int i=1; i <= rsmd.getColumnCount(); i++){
-                      resultColumns.add(rsmd.getColumnName(i));
-                      resultLine.add(rs.getString(i));
+                    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                        resultColumns.add(rsmd.getColumnName(i));
+                        resultLine.add(rs.getString(i));
                     }
                     dtm.addRow(resultLine.toArray());
-               }
-               exportCsvButton.setEnabled(true);
+                }
+                exportJsonButton.setEnabled(true);
+                exportCsvButton.setEnabled(true);
             }
         } catch (SQLException sql1) {
             System.out.println("Erro BD: " + sql1);
@@ -336,6 +341,39 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
 
     private void exportJsonButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportJsonButtonActionPerformed
         // TODO add your handling code here:
+        try {
+            System.out.println(_jsonExportDir);
+            TableModel model = sqlResultTable.getModel();
+            FileWriter json = new FileWriter(new File(_jsonExportDir));
+
+            JSONObject objetoJson = new JSONObject();
+
+                // model.re
+            for (int i = 0; i < model.getRowCount(); i++) {
+                JSONObject linha = new JSONObject();
+                
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    linha.put(model.getColumnName(j), model.getValueAt(i, j).toString());
+                }
+                
+                objetoJson.append("dados", linha);
+                // csv.write(model.getColumnName(i) + ",");
+            }
+            // for (int i = 0; i < model.getRowCount(); i++) {
+               // JSONObject linha = new JSONObject();
+
+                // for (int j = 0; j < model.getColumnCount(); j++) {
+                //     linha.put(model.getColumnName(i), model.getValueAt(i, j).toString());
+                // }
+                // objetoJson.append("dados", linha);
+            // }
+
+            json.write(objetoJson.toString());
+
+            json.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_exportJsonButtonActionPerformed
 
     private void returnNumberLimitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnNumberLimitActionPerformed
@@ -347,19 +385,18 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
     }//GEN-LAST:event_returnNumberLimitKeyPressed
 
     private void returnNumberLimitInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_returnNumberLimitInputMethodTextChanged
-         try{
+        try {
             System.out.println("Change");
             Integer.valueOf(returnNumberLimit.getText());
-        }
-        catch(Exception ex){
+        } catch (Exception ex) {
             returnNumberLimit.setText("");
 
             returnNumberLimit.setText("1000");
         }
     }//GEN-LAST:event_returnNumberLimitInputMethodTextChanged
 
-    private String getColumnType(int typeId){
-        switch(typeId){
+    private String getColumnType(int typeId) {
+        switch (typeId) {
             case 2003:
                 return "Array";
             case -5:
@@ -434,6 +471,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
                 return "";
         }
     }
+
     /**
      * @param args the command line arguments
      */
@@ -469,8 +507,8 @@ public class ConnectionGUIForm extends javax.swing.JFrame  {
             }
         });
     }
-    
-    enum DataTypes{
+
+    enum DataTypes {
 
     }
 
