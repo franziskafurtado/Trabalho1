@@ -9,8 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -98,6 +96,12 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
             ResultSet rst = st.executeQuery(
                     "select * from " + tableName
             );
+            
+            ResultSet pk_cols = this.con.getMetaData().getPrimaryKeys(null, null, tableName);
+            ArrayList<String> pks = new ArrayList();
+            while (pk_cols.next()) {
+                pks.add(pk_cols.getString("COLUMN_NAME"));
+            }
             ResultSetMetaData rsMetaData = rst.getMetaData();
 
             int count = rsMetaData.getColumnCount();
@@ -105,7 +109,12 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
             System.out.println(count);
 
             for (int i = 1; i <= count; i++) {
-                columns.add(new DefaultMutableTreeNode(rsMetaData.getColumnName(i) + "-" + getColumnType(rsMetaData.getColumnType(i)) + "(" + rsMetaData.getColumnDisplaySize(i) + ")"));
+                columns.add(new DefaultMutableTreeNode(
+                        (pks.contains(rsMetaData.getColumnName(i))
+                        ? "[PK] " : "")
+                        + rsMetaData.getColumnName(i)
+                        + "-" + getColumnType(rsMetaData.getColumnType(i))
+                        + "(" + rsMetaData.getColumnDisplaySize(i) + ")"));
             }
             rst.close();
             st.close();
@@ -140,6 +149,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
         exportCsvButton = new javax.swing.JButton();
         exportJsonButton = new javax.swing.JButton();
         returnNumberLimit = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -232,44 +242,45 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setText("Limit");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(executeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(66, 66, 66)
-                        .addComponent(exportJsonButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(28, 28, 28)
-                        .addComponent(exportCsvButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(60, 60, 60)
-                        .addComponent(returnNumberLimit, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1)
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE))
-                .addContainerGap(32, Short.MAX_VALUE))
+                        .addComponent(executeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(returnNumberLimit, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 106, Short.MAX_VALUE)
+                        .addComponent(exportJsonButton, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(exportCsvButton, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addComponent(jScrollPane5)
+                    .addComponent(jScrollPane1)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(executeButton)
-                            .addComponent(exportCsvButton)
-                            .addComponent(exportJsonButton)
-                            .addComponent(returnNumberLimit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(32, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(returnNumberLimit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(executeButton)
+                    .addComponent(exportJsonButton)
+                    .addComponent(exportCsvButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
         );
 
         pack();
@@ -282,13 +293,12 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
 
             Statement stmt = this.con.createStatement();
             ResultSet rs = stmt.executeQuery(
-                    sqlCommandTextArea.getText() + 
-                    " limit " + returnNumberLimit.getText());
+                    sqlCommandTextArea.getText()
+                    + " limit " + returnNumberLimit.getText());
             
             ArrayList<String> resultColumns = new ArrayList<>();
 
             DefaultTableModel dtm = new DefaultTableModel(0, 0);
-
             if (rs.next()) {
                 ResultSetMetaData rsmd = rs.getMetaData();
 
@@ -354,26 +364,25 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
 
             JSONObject objetoJson = new JSONObject();
 
-                // model.re
+            // model.re
             for (int i = 0; i < model.getRowCount(); i++) {
                 JSONObject linha = new JSONObject();
-                
+
                 for (int j = 0; j < model.getColumnCount(); j++) {
                     linha.put(model.getColumnName(j), model.getValueAt(i, j).toString());
                 }
-                
+
                 objetoJson.append("dados", linha);
                 // csv.write(model.getColumnName(i) + ",");
             }
             // for (int i = 0; i < model.getRowCount(); i++) {
-               // JSONObject linha = new JSONObject();
+            // JSONObject linha = new JSONObject();
 
-                // for (int j = 0; j < model.getColumnCount(); j++) {
-                //     linha.put(model.getColumnName(i), model.getValueAt(i, j).toString());
-                // }
-                // objetoJson.append("dados", linha);
+            // for (int j = 0; j < model.getColumnCount(); j++) {
+            //     linha.put(model.getColumnName(i), model.getValueAt(i, j).toString());
             // }
-
+            // objetoJson.append("dados", linha);
+            // }
             json.write(objetoJson.toString());
 
             json.close();
@@ -523,6 +532,7 @@ public class ConnectionGUIForm extends javax.swing.JFrame {
     private javax.swing.JButton executeButton;
     private javax.swing.JButton exportCsvButton;
     private javax.swing.JButton exportJsonButton;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
